@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PORTAL DEV SENTINELA — SAMUEL MILITARY DEFENSE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #f0c76e;
+      --gold-bright: #ffe5a3;
+      --mint: #7ef0c4;
+      --cyan: #5ce1e6;
+      --danger: #ff5c5c;
+      --purple: #a37eff;
+      --bg-dark: #050c11;
+      --bg-panel: rgba(8, 18, 26, 0.94);
+      --border-gold: rgba(240, 199, 110, 0.38);
+      --border-subtle: rgba(126, 240, 196, 0.22);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-dark);
+      color: #eef6f2;
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* TELA DE LOGIN SENTINELA */
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(14, 34, 46, 0.92), rgba(2, 6, 9, 0.98));
+      display: grid;
+      place-items: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .login-card {
+      width: min(440px, 94vw);
+      padding: 34px;
+      background: linear-gradient(145deg, #0f1d28, #071118);
+      border: 1px solid var(--border-gold);
+      border-top: 3px solid var(--gold);
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85);
+      text-align: center;
+    }
+
+    .kicker {
+      font: 700 10px 'Orbitron', sans-serif;
+      letter-spacing: 2.5px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .login-card h1 {
+      font: 900 24px 'Orbitron', sans-serif;
+      color: #f6f4ec;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font: 500 13px 'Barlow Condensed', sans-serif;
+      color: #9cb2a8;
+      margin-bottom: 22px;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font: 700 10px 'Orbitron', sans-serif;
+      color: var(--cyan);
+      margin-bottom: 5px;
+      letter-spacing: 1px;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 11px 14px;
+      background: #040a0e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: #fff;
+      font: 700 16px 'Rajdhani', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus, .input-group select:focus { border-color: var(--gold); }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(120deg, #b8893c, #f2d084);
+      border: 1px solid var(--gold-bright);
+      border-radius: 9px;
+      color: #111;
+      font: 800 12px 'Orbitron', sans-serif;
+      letter-spacing: 1.4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    #loginError {
+      color: var(--danger);
+      font: 700 12px 'Orbitron', sans-serif;
+      margin-top: 12px;
+      min-height: 18px;
+    }
+
+    /* DASHBOARD PRINCIPAL DO PORTAL */
+    #portalApp {
+      display: none;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 24px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--gold);
+      border-radius: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .portal-brand h2 {
+      font: 900 20px 'Orbitron', sans-serif;
+      color: #f6f4ec;
+    }
+    .portal-brand span {
+      font: 700 11px 'Barlow Condensed', sans-serif;
+      color: var(--cyan);
+      letter-spacing: 2px;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font: 700 13px 'Orbitron', sans-serif;
+      color: var(--gold-bright);
+    }
+    .user-badge button {
+      width: auto;
+      padding: 6px 14px;
+      margin: 0;
+      font-size: 9px;
+      background: rgba(255, 92, 92, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* ABAS DE NAVEGAÇÃO */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      background: rgba(14, 28, 38, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: #a3c2b8;
+      font: 700 11px 'Orbitron', sans-serif;
+      cursor: pointer;
+      width: auto;
+      margin: 0;
+    }
+    .tab-btn.active {
+      background: linear-gradient(120deg, #b8893c, #f2d084);
+      border-color: #fff;
+      color: #111;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* PAINÉIS E CARDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card h3 {
+      font: 900 16px 'Orbitron', sans-serif;
+      color: var(--gold-bright);
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(126, 240, 196, 0.15);
+    }
+    th {
+      font: 700 11px 'Orbitron', sans-serif;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+    td b { color: #fff; font-weight: 700; }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font: 700 9px 'Orbitron', sans-serif;
+    }
+    .tag.active { background: rgba(126, 240, 196, 0.18); color: var(--mint); }
+    .tag.banned { background: rgba(255, 92, 92, 0.22); color: var(--danger); }
+    .tag.master { background: rgba(240, 199, 110, 0.22); color: var(--gold); }
+
+    .action-btn {
+      padding: 5px 10px;
+      font-size: 9px;
+      width: auto;
+      margin: 0;
+    }
+    .danger-btn {
+      background: rgba(255, 92, 92, 0.2);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .cyan-btn {
+      background: rgba(92, 225, 230, 0.16);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .injector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .injector-item {
+      background: rgba(5, 14, 20, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .injector-item b {
+      font: 700 13px 'Orbitron', sans-serif;
+      color: var(--gold-bright);
+      margin-bottom: 4px;
+    }
+    .injector-item p {
+      font-size: 13px;
+      color: #a3c2b8;
+      margin-bottom: 10px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 750px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      background: #020609;
+    }
+
+    .log-box {
+      background: #03080c;
+      border: 1px solid rgba(126, 240, 196, 0.15);
+      border-radius: 8px;
+      padding: 14px;
+      height: 280px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--mint);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN SENTINELA -->
+  <div id="loginOverlay">
+    <div class="login-card">
+      <div class="kicker">AUTHENTICATION PROTOCOL v3.5</div>
+      <h1>SENTINELA DEV</h1>
+      <p>Insira suas credenciais autorizadas de desenvolvedor para acessar o portal central.</p>
+      
+      <div class="input-group">
+        <label for="sentinelaId">ID SENTINELA</label>
+        <input id="sentinelaId" placeholder="Ex: 000000001" />
+      </div>
+      <div class="input-group">
+        <label for="sentinelaPass">SENHA DE ACESSO</label>
+        <input id="sentinelaPass" type="password" placeholder="Sua senha secreta" />
+      </div>
+
+      <button id="authBtn">AUTENTICAR ACESSO</button>
+      <div id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- PORTAL PRINCIPAL -->
+  <div id="portalApp">
+    <header>
+      <div class="portal-brand">
+        <h2>PORTAL DEV SENTINELA</h2>
+        <span id="systemStatus">ESTADO: OPERACIONAL · ARSENAL EXPANDIDO v3.5</span>
+      </div>
+      <div class="user-badge">
+        <span id="userNameBadge">DESENVOLVEDOR</span>
+        <button onclick="logout()">LOGOUT</button>
+      </div>
+    </header>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-overview">VISÃO GERAL & LOGS</button>
+      <button class="tab-btn" data-tab="tab-injector">INJEÇÃO DE ITENS & SAVE</button>
+      <button class="tab-btn" data-tab="tab-bans">BANIMENTO PERMANENTE</button>
+      <button class="tab-btn" data-tab="tab-ranking">RANKING & CENSURA</button>
+      <button class="tab-btn" data-tab="tab-sentinels">GESTÃO SENTINELA</button>
+      <button class="tab-btn" data-tab="tab-game">JOGAR / BUILD VINCULADA</button>
+    </div>
+
+    <!-- ABA 1: VISÃO GERAL -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="grid-2">
+        <div class="card">
+          <h3>TELEMETRIA DA BUILD <span class="tag active">ONLINE</span></h3>
+          <p style="color:#a3c2b8; margin-bottom:14px; font-size:15px;">
+            O portal monitora o arquivo do jogo vinculado (`samuel_military_defense_controles_mobile_e_tablet_corrigidos.html`). Agora inclui suporte a RPG-7, Desert Eagle, Colete Kevlar, Adrenalina e Munição Incendiária.
+          </p>
+          <div id="liveSaveTelemetry" style="background:#040a0e; padding:12px; border-radius:8px; border:1px solid var(--border-subtle); margin-bottom:14px; font-size:14px; color:var(--cyan);">
+            Aguardando leitura do savegame local...
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button onclick="exportAllData()">EXPORTAR BACKUP JSON</button>
+            <button onclick="clearLocalStorageData()" class="danger-btn">RESETAR DADOS LOCAIS</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>LOGS DE AUDITORIA SENTINELA</h3>
+          <div class="log-box" id="auditLogs">
+            [09:30] Sistema Sentinela v3.5 inicializado com sucesso.<br>
+            [09:30] Novo pacote de armas e suprimentos carregado na build.<br>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 2: INJEÇÃO DE ITENS & SAVE -->
+    <div class="tab-content" id="tab-injector">
+      <div class="card">
+        <h3>CONCEDER ITENS E RECURSOS AO SAVEGAME</h3>
+        <p style="color:#a3c2b8; font-size:14px; margin-bottom:12px;">
+          Injete equipamentos, créditos ou desbloqueie todo o arsenal diretamente no perfil ativo do jogo (`samuel_tactical_v3`).
+        </p>
+        <div class="injector-grid">
+          <div class="injector-item">
+            <div>
+              <b>+5.000 CRÉDITOS TÁTICOS</b>
+              <p>Adiciona fundos imediatos para compras no Arsenal.</p>
+            </div>
+            <button class="cyan-btn" onclick="injectSaveBoost('credits')">INJETAR CRÉDITOS</button>
+          </div>
+          <div class="injector-item">
+            <div>
+              <b>DESBLOQUEAR TODO O ARSENAL</b>
+              <p>Libera M4A1, Vector, M12, SR-25, M249, Desert Eagle, RPG-7, acessórios e camos.</p>
+            </div>
+            <button onclick="injectSaveBoost('unlockAll')">LIBERAR TUDO</button>
+          </div>
+          <div class="injector-item">
+            <div>
+              <b>PACOTE DE SUPRIMENTOS ELITE</b>
+              <p>Concede +5 Bandanas, +5 Granadas, +3 Coletes Kevlar e +3 Adrenalinas.</p>
+            </div>
+            <button class="cyan-btn" onclick="injectSaveBoost('supplies')">CONCEDER SUPRIMENTOS</button>
+          </div>
+          <div class="injector-item">
+            <div>
+              <b>PROMOÇÃO NÍVEL 15</b>
+              <p>Eleva a patente do operador ativo para o Nível 15.</p>
+            </div>
+            <button class="cyan-btn" onclick="injectSaveBoost('level')">PROMOVER OPERADOR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 3: BANIMENTO PERMANENTE -->
+    <div class="tab-content" id="tab-bans">
+      <div class="grid-2">
+        <div class="card">
+          <h3>APLICAR BANIMENTO PERMANENTE</h3>
+          <div class="input-group">
+            <label for="banTarget">CODINOME OU ID DO JOGADOR</label>
+            <input id="banTarget" placeholder="Ex: Ghost_BR" />
+          </div>
+          <div class="input-group">
+            <label for="banReason">MOTIVO DA PUNIÇÃO</label>
+            <input id="banReason" placeholder="Ex: Uso de trapaças / Exploit" />
+          </div>
+          <button onclick="executeBan()" class="danger-btn" style="width:100%;">EXECUTAR BANIMENTO PERMANENTE</button>
+        </div>
+
+        <div class="card">
+          <h3>JOGADORES NA LISTA NEGRA</h3>
+          <div style="max-height: 260px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Codinome</th>
+                  <th>Motivo</th>
+                  <th>Autor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="banListTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 4: RANKING & CENSURA -->
+    <div class="tab-content" id="tab-ranking">
+      <div class="card">
+        <h3>RANKING GLOBAL DE OPERADORES (COM CENSURA AUTOMÁTICA)</h3>
+        <p style="color:#a3c2b8; font-size:14px; margin-bottom:12px;">
+          Nomes dos jogadores são automaticamente censurados a partir da segunda letra (ex: <b>S*****</b>) para privacidade e segurança.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Posição</th>
+              <th>Codinome Censurado</th>
+              <th>Nível</th>
+              <th>Abates</th>
+              <th>Pontuação</th>
+              <th>Status Sentinela</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ABA 5: GESTÃO SENTINELA -->
+    <div class="tab-content" id="tab-sentinels">
+      <div class="grid-2">
+        <div class="card">
+          <h3>ADICIONAR NOVA SENTINELA AUTORIZADA</h3>
+          <div class="input-group">
+            <label>NOME REAL</label>
+            <input id="newRealName" placeholder="Ex: Carlos M." />
+          </div>
+          <div class="input-group">
+            <label>ID SENTINELA (LOGIN)</label>
+            <input id="newSentinelaId" placeholder="Ex: 55443322" />
+          </div>
+          <div class="input-group">
+            <label>SENHA SECRETA</label>
+            <input id="newSentinelaPass" type="password" placeholder="Senha" />
+          </div>
+          <button onclick="addNewSentinel()">CADASTRAR NOVA SENTINELA</button>
+        </div>
+
+        <div class="card">
+          <h3>SENTINELAS ATIVAS NO SISTEMA</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Nome Real</th>
+                <th>ID Sentinela</th>
+                <th>Cargo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="sentinelsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 6: JOGO / BUILD VINCULADA -->
+    <div class="tab-content" id="tab-game">
+      <div class="card">
+        <h3>SAMUEL MILITARY DEFENSE — BUILD TÁTICA</h3>
+        <p style="color:#a3c2b8; margin-bottom:12px; font-size:14px;">
+          Teclas: <b>1-7</b> Armas · <b>Q</b> Granada · <b>B</b> Curar · <b>V</b> Colete Kevlar · <b>H</b> Adrenalina · <b>F</b> Tanque · <b>G</b> Arsenal.
+        </p>
+        <iframe id="gameFrame" src="samuel_military_defense_controles_mobile_e_tablet_corrigidos.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let authorizedSentinels = JSON.parse(localStorage.getItem('sentinela_accounts_v1')) || [
+      { id: '230320158', pass: '23032015samuel', realName: 'Samuel (Master)', role: 'MASTER' },
+      { id: '34678905', pass: 'enz678905', realName: 'Enzo M*****', role: 'DEV' },
+      { id: '38903586', pass: 'and03586', realName: 'André N****', role: 'DEV' },
+      { id: '99874623', pass: 'vit874623', realName: 'Vitor M.', role: 'DEV' },
+      { id: '004687932', pass: 'mig4687932', realName: 'Miguel S****', role: 'DEV' }
+    ];
+
+    let currentSession = null;
+
+    function logAudit(msg) {
+      const box = document.getElementById('auditLogs');
+      const time = new Date().toLocaleTimeString();
+      box.innerHTML = `[${time}] ${msg}<br>` + box.innerHTML;
+    }
+
+    document.getElementById('authBtn').onclick = () => {
+      const idInput = document.getElementById('sentinelaId').value.trim();
+      const passInput = document.getElementById('sentinelaPass').value.trim();
+      const errEl = document.getElementById('loginError');
+
+      const found = authorizedSentinels.find(s => s.id === idInput && s.pass === passInput);
+      if (found) {
+        currentSession = found;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('portalApp').style.display = 'block';
+        document.getElementById('userNameBadge').textContent = `${found.realName} [${found.role}]`;
+        logAudit(`Autenticação bem-sucedida por ${found.realName} (ID: ${found.id})`);
+        initPortalData();
+      } else {
+        errEl.textContent = 'ACESSO NEGADO: Credenciais Sentinela inválidas.';
+        logAudit(`Tentativa de acesso falha com ID: ${idInput}`);
+      }
+    };
+
+    function logout() {
+      currentSession = null;
+      document.getElementById('portalApp').style.display = 'none';
+      document.getElementById('loginOverlay').style.display = 'grid';
+      document.getElementById('sentinelaId').value = '';
+      document.getElementById('sentinelaPass').value = '';
+      document.getElementById('loginError').textContent = '';
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        updateTelemetryBox();
+      };
+    });
+
+    function updateTelemetryBox() {
+      const el = document.getElementById('liveSaveTelemetry');
+      try {
+        const d = JSON.parse(localStorage.getItem('samuel_tactical_v3') || 'null');
+        if (!d) {
+          el.innerHTML = 'Nenhum savegame ativo encontrado neste navegador.';
+          return;
+        }
+        el.innerHTML = `Operador: <b>${d.operatorName || 'OPERADOR'}</b> · Nível: <b>${d.playerLevel || 1}</b> · Créditos: <b>${d.credits ?? 150} CR</b> · Abates: <b>${d.kills || 0}</b> · Colete: <b>${d.armor || 0}%</b> · Adrenalinas: <b>${d.adrenaline || 0}</b>`;
+      } catch(_) {
+        el.innerHTML = 'Erro ao ler dados do savegame.';
+      }
+    }
+
+    function injectSaveBoost(type) {
+      let save = {};
+      try { save = JSON.parse(localStorage.getItem('samuel_tactical_v3') || '{}'); } catch(_) {}
+      save.operatorName = save.operatorName || 'OPERADOR';
+
+      if (type === 'credits') {
+        save.credits = (save.credits ?? 150) + 5000;
+        logAudit(`Injetados +5000 créditos no save por ${currentSession.realName}.`);
+      } else if (type === 'unlockAll') {
+        save.ownedWeapons = ['rifle', 'smg', 'shotgun', 'dmr', 'lmg', 'deagle', 'rpg'];
+        save.ownedAttachments = ['sight_iron', 'sight_holo', 'sight_acog', 'sight_thermal', 'muzzle_std', 'muzzle_comp', 'muzzle_supp', 'grip_none', 'grip_vert', 'mag_ext'];
+        save.ownedCamos = ['camo_std', 'camo_forest', 'camo_desert', 'camo_cyber', 'camo_gold', 'camo_crimson', 'camo_sentinel'];
+        logAudit(`Todo o arsenal, acessórios e camuflagens liberados por ${currentSession.realName}.`);
+      } else if (type === 'supplies') {
+        save.bandanas = (save.bandanas ?? 2) + 5;
+        save.grenadeAmmo = (save.grenadeAmmo ?? 3) + 5;
+        save.armorPacks = (save.armorPacks ?? 1) + 3;
+        save.adrenaline = (save.adrenaline ?? 1) + 3;
+        save.incendiaryRounds = (save.incendiaryRounds ?? 0) + 60;
+        logAudit(`Pacote de suprimentos elite injetado por ${currentSession.realName}.`);
+      } else if (type === 'level') {
+        save.playerLevel = Math.max(15, (save.playerLevel || 1));
+        logAudit(`Operador promovido ao Nível 15 por ${currentSession.realName}.`);
+      }
+
+      localStorage.setItem('samuel_tactical_v3', JSON.stringify(save));
+      updateTelemetryBox();
+      const frame = document.getElementById('gameFrame');
+      if (frame) frame.src = frame.src;
+      alert('Alteração aplicada ao savegame com sucesso!');
+    }
+
+    function getBans() {
+      return JSON.parse(localStorage.getItem('sentinela_perma_bans_v1')) || [];
+    }
+
+    function executeBan() {
+      const target = document.getElementById('banTarget').value.trim();
+      const reason = document.getElementById('banReason').value.trim() || 'Violação das diretrizes de combate';
+      if (!target) { alert('Insira o codinome ou ID do jogador.'); return; }
+
+      const bans = getBans();
+      if (!bans.some(b => b.target.toLowerCase() === target.toLowerCase())) {
+        bans.push({ target, reason, author: currentSession.realName, date: new Date().toLocaleDateString() });
+        localStorage.setItem('sentinela_perma_bans_v1', JSON.stringify(bans));
+
+        try {
+          const gameSave = JSON.parse(localStorage.getItem('samuel_tactical_v3') || '{}');
+          if (gameSave.operatorName && gameSave.operatorName.toLowerCase() === target.toLowerCase()) {
+            gameSave.banned = true;
+            gameSave.banReason = reason;
+            localStorage.setItem('samuel_tactical_v3', JSON.stringify(gameSave));
+          }
+        } catch(_) {}
+
+        logAudit(`BANIMENTO PERMANENTE aplicado a "${target}" por ${currentSession.realName}. Motivo: ${reason}`);
+        document.getElementById('banTarget').value = '';
+        document.getElementById('banReason').value = '';
+        renderBans();
+        renderRanking();
+      } else {
+        alert('Este jogador já está banido permanentemente.');
+      }
+    }
+
+    function removeBan(target) {
+      let bans = getBans();
+      bans = bans.filter(b => b.target !== target);
+      localStorage.setItem('sentinela_perma_bans_v1', JSON.stringify(bans));
+      logAudit(`Banimento revogado para "${target}" por ${currentSession.realName}`);
+      renderBans();
+      renderRanking();
+    }
+
+    function renderBans() {
+      const bans = getBans();
+      const tbody = document.getElementById('banListTable');
+      if (bans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#7ef0c4;">Nenhum banimento registrado.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = bans.map(b => `
+        <tr>
+          <td><b>${b.target}</b></td>
+          <td>${b.reason}</td>
+          <td style="color:var(--gold);">${b.author}</td>
+          <td><button class="action-btn danger-btn" onclick="removeBan('${b.target}')">REVOGAR</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function censorName(name) {
+      if (!name || name.length <= 1) return '*';
+      return name[0] + '*'.repeat(Math.max(3, name.length - 1));
+    }
+
+    function renderRanking() {
+      const bans = getBans();
+      let players = [
+        { name: 'Ghost_BR', level: 8, kills: 74, score: 3250 },
+        { name: 'Samuel', level: 12, kills: 142, score: 6890 },
+        { name: 'AlphaSniper', level: 6, kills: 45, score: 1980 },
+        { name: 'Vortex_99', level: 4, kills: 28, score: 1200 },
+        { name: 'DarkOrion', level: 9, kills: 88, score: 4100 }
+      ];
+
+      try {
+        const cur = JSON.parse(localStorage.getItem('samuel_tactical_v3'));
+        if (cur && cur.operatorName) {
+          if (!players.some(p => p.name.toLowerCase() === cur.operatorName.toLowerCase())) {
+            players.push({ name: cur.operatorName, level: cur.playerLevel || 1, kills: cur.kills || 0, score: cur.score || 0 });
+          }
+        }
+      } catch(_) {}
+
+      players.sort((a, b) => b.score - a.score);
+
+      const tbody = document.getElementById('rankingTableBody');
+      tbody.innerHTML = players.map((p, idx) => {
+        const isBanned = bans.some(b => b.target.toLowerCase() === p.name.toLowerCase());
+        const censored = censorName(p.name);
+        return `
+          <tr>
+            <td><b>#0${idx + 1}</b></td>
+            <td><span style="font-family:monospace; font-weight:700; color:var(--cyan);">${censored}</span></td>
+            <td>Nível ${p.level}</td>
+            <td>${p.kills} abates</td>
+            <td>${p.score} pts</td>
+            <td>${isBanned ? '<span class="tag banned">BANIDO PERMANENTE</span>' : '<span class="tag active">ATIVO / LIMPO</span>'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function addNewSentinel() {
+      if (currentSession.role !== 'MASTER') {
+        alert('Apenas o operador MASTER (Samuel) pode cadastrar novas Sentinelas.');
+        return;
+      }
+      const realName = document.getElementById('newRealName').value.trim();
+      const id = document.getElementById('newSentinelaId').value.trim();
+      const pass = document.getElementById('newSentinelaPass').value.trim();
+
+      if (!realName || !id || !pass) { alert('Preencha todos os campos.'); return; }
+      if (authorizedSentinels.some(s => s.id === id)) { alert('Este ID Sentinela já está cadastrado.'); return; }
+
+      authorizedSentinels.push({ id, pass, realName, role: 'DEV' });
+      localStorage.setItem('sentinela_accounts_v1', JSON.stringify(authorizedSentinels));
+      logAudit(`Nova Sentinela cadastrada: ${realName} (ID: ${id})`);
+      document.getElementById('newRealName').value = '';
+      document.getElementById('newSentinelaId').value = '';
+      document.getElementById('newSentinelaPass').value = '';
+      renderSentinels();
+    }
+
+    function removeSentinel(id) {
+      if (currentSession.role !== 'MASTER') { alert('Apenas o MASTER pode remover sentinelas.'); return; }
+      if (id === '230320158') { alert('Não é possível remover a Sentinela Master principal.'); return; }
+      authorizedSentinels = authorizedSentinels.filter(s => s.id !== id);
+      localStorage.setItem('sentinela_accounts_v1', JSON.stringify(authorizedSentinels));
+      logAudit(`Sentinela ID ${id} removida do sistema.`);
+      renderSentinels();
+    }
+
+    function renderSentinels() {
+      const tbody = document.getElementById('sentinelsTableBody');
+      tbody.innerHTML = authorizedSentinels.map(s => `
+        <tr>
+          <td><b>${s.realName}</b></td>
+          <td>${s.id}</td>
+          <td><span class="tag ${s.role === 'MASTER' ? 'master' : 'active'}">${s.role}</span></td>
+          <td>${s.id !== '230320158' && currentSession.role === 'MASTER' ? `<button class="action-btn danger-btn" onclick="removeSentinel('${s.id}')">REMOVER</button>` : 'PROTEGIDO'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function exportAllData() {
+      const exportData = {
+        sentinels: authorizedSentinels,
+        bans: getBans(),
+        gameSave: localStorage.getItem('samuel_tactical_v3'),
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sentinela_backup_${Date.now()}.json`;
+      a.click();
+      logAudit('Backup completo do sistema exportado.');
+    }
+
+    function clearLocalStorageData() {
+      if (confirm('Tem certeza que deseja limpar todos os dados de salvamento e banimentos locais?')) {
+        localStorage.removeItem('samuel_tactical_v3');
+        localStorage.removeItem('sentinela_perma_bans_v1');
+        logAudit('Dados locais limpos pelo operador.');
+        initPortalData();
+        alert('Dados reinicializados.');
+      }
+    }
+
+    function initPortalData() {
+      renderBans();
+      renderRanking();
+      renderSentinels();
+      updateTelemetryBox();
+    }
+  </script>
+</body>
+</html>
